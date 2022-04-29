@@ -1,7 +1,4 @@
-const httpStatus = require('http-status');
-
 const catchAsync = require('../../utils/catchAsync');
-const { getProfile } = require('../../middleware/getProfile');
 const contractsService = require('../../services/contracts.service');
 
 const getAllContracts = catchAsync(async (req, res) => {
