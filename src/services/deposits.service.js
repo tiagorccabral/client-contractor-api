@@ -42,8 +42,7 @@ const depositMoney = async (clientId, depositData) => {
   }
 
   return {
-    client: client,
-    totalAmountToPay: totalAmount
+    client: client
   };
 };
 
