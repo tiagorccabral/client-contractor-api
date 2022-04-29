@@ -5,7 +5,7 @@ const depositsService = require('../../services/deposits.service');
 
 const depositMoney = catchAsync(async (req, res) => {
   const reqBody = req.body;
-  const userId = req.params.userId
+  const { userId } = req.params;
 
   const result = await depositsService.depositMoney(userId, reqBody);
 
@@ -17,5 +17,5 @@ const depositMoney = catchAsync(async (req, res) => {
 });
 
 module.exports = {
-  depositMoney
+  depositMoney,
 };

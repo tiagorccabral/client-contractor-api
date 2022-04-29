@@ -9,8 +9,8 @@ const getUnpaidJobs = catchAsync(async (req, res) => {
 });
 
 const payJob = catchAsync(async (req, res) => {
-  const jobId = req.params.job_id
-  const profileId = req.profile.id
+  const jobId = req.params.job_id;
+  const profileId = req.profile.id;
 
   const result = await jobsService.payJob(jobId, profileId);
 
@@ -23,5 +23,5 @@ const payJob = catchAsync(async (req, res) => {
 
 module.exports = {
   getUnpaidJobs,
-  payJob
+  payJob,
 };

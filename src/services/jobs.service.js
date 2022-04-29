@@ -1,81 +1,78 @@
-const { Profile, Job, Contract } = require('../model')
+const { Profile, Job, Contract } = require('../model');
 
-const { getAllContracts, getContractByPk } = require('../services/contracts.service')
+const { getAllContracts, getContractByPk } = require('./contracts.service');
 
 const { sequelize } = require('../model');
 
 const getAllUnpaidJobs = async (profileId) => {
-  const contracts = await getAllContracts(profileId)
-  const contractsIds = contracts.map(contract => contract.id)
+  const contracts = await getAllContracts(profileId);
+  const contractsIds = contracts.map((contract) => contract.id);
   const jobs = await Job.findAll({
     where: {
       paid: {
-        [require('sequelize').Op.not]: true
+        [require('sequelize').Op.not]: true,
       },
       ContractId: {
-        [require('sequelize').Op.in]: contractsIds
-      }
-    }
+        [require('sequelize').Op.in]: contractsIds,
+      },
+    },
   });
   return jobs;
 };
 
 const getAllJobs = async (profileId) => {
-  const contracts = await getAllContracts(profileId)
-  const contractsIds = contracts.map(contract => contract.id)
+  const contracts = await getAllContracts(profileId);
+  const contractsIds = contracts.map((contract) => contract.id);
   const jobs = await Job.findAll({
     where: {
       paid: {
-        [require('sequelize').Op.eq]: true
+        [require('sequelize').Op.eq]: true,
       },
       ContractId: {
-        [require('sequelize').Op.in]: contractsIds
-      }
-    }
+        [require('sequelize').Op.in]: contractsIds,
+      },
+    },
   });
   return jobs;
 };
 
 const payJob = async (jobId, profileId) => {
-  const job = await Job.findByPk(jobId)
+  const job = await Job.findByPk(jobId);
 
-  const contract = await getContractByPk(job.ContractId)
+  const contract = await getContractByPk(job.ContractId);
 
   if (profileId !== contract.ClientId) {
-    return { error: 'You can only pay your own jobs' }
+    return { error: 'You can only pay your own jobs' };
   }
 
-  const client = await Profile.findByPk(contract.ClientId)
-  const contractor = await Profile.findByPk(contract.ContractorId)
+  const client = await Profile.findByPk(contract.ClientId);
+  const contractor = await Profile.findByPk(contract.ContractorId);
 
   if (client.balance < job.price) {
-    return { error: 'Insufficient funds for transfer' }
+    return { error: 'Insufficient funds for transfer' };
   }
 
   try {
-
     const t = await sequelize.transaction();
 
-    client.decrement('balance', { by: job.price }, { transaction: t })
-    contractor.increment('balance', { by: job.price }, { transaction: t })
+    client.decrement('balance', { by: job.price }, { transaction: t });
+    contractor.increment('balance', { by: job.price }, { transaction: t });
 
     await t.commit();
-
   } catch (error) {
-
     await t.rollback();
   }
 
   return {
-    job: job,
-    contract: contract,
-    client: client,
-    contractor: contractor
+    job,
+    contract,
+    client,
+    contractor,
   };
 };
 
 module.exports = {
   getAllUnpaidJobs,
   getAllJobs,
-  payJob
-}
+  payJob,
+};

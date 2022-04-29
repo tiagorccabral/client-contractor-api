@@ -14,5 +14,5 @@ const getProfileContract = catchAsync(async (req, res) => {
 
 module.exports = {
   getAllContracts,
-  getProfileContract
+  getProfileContract,
 };

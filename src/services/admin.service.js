@@ -1,92 +1,99 @@
-const { Profile, Contract, Job } = require('../model')
-
 const sequelize = require('sequelize');
+const { Profile, Contract, Job } = require('../model');
 
 const retrieveHighestPaidProfession = (jobs) => {
   const jobsHash = {};
-  jobs.forEach(job => {
+  jobs.forEach((job) => {
     jobsHash[job.Contract.Contractor.profession] = (jobsHash[job.Contract.Contractor.profession] || 0) + job.price;
-  })
+  });
 
   const max = Object.keys(jobsHash).reduce((a, v) => Math.max(a, jobsHash[v]), -Infinity);
-  const result = Object.keys(jobsHash).filter(v => jobsHash[v] === max);
+  const result = Object.keys(jobsHash).filter((v) => jobsHash[v] === max);
 
   return { [result[0]]: jobsHash[result[0]] };
-}
+};
 
 const retrieveHighestPayingClient = (jobs, limit) => {
   const jobsHash = {};
-  jobs.forEach(job => {
+  jobs.forEach((job) => {
     jobsHash[job.Contract.ClientId] = (jobsHash[job.Contract.ClientId] || 0) + job.price;
-  })
+  });
 
-  let sortedClients = []
+  const sortedClients = [];
 
-  let counter = 0
+  let counter = 0;
   while (counter < limit) {
-    counter++
+    counter++;
     const max = Object.keys(jobsHash).reduce((a, v) => Math.max(a, jobsHash[v]), -Infinity);
-    const result = Object.keys(jobsHash).filter(v => jobsHash[v] === max)
-    sortedClients.push({ [result[0]]: jobsHash[result[0]] })
-    delete jobsHash[result[0]]
+    const result = Object.keys(jobsHash).filter((v) => jobsHash[v] === max);
+    sortedClients.push({ [result[0]]: jobsHash[result[0]] });
+    delete jobsHash[result[0]];
   }
 
-  return sortedClients
-}
+  return sortedClients;
+};
 
 const getBestProfession = async (startDate, endDate) => {
   const jobs = await Job.findAll({
-    include: [{
-      model: Contract,
-      required: true,
-      include: [{
-        model: Profile,
-        as: 'Contractor',
-      }]
-    }],
+    include: [
+      {
+        model: Contract,
+        required: true,
+        include: [
+          {
+            model: Profile,
+            as: 'Contractor',
+          },
+        ],
+      },
+    ],
     where: {
       paid: {
-        [require('sequelize').Op.eq]: true
+        [require('sequelize').Op.eq]: true,
       },
       createdAt: {
-        [sequelize.Op.between]: [Date.parse(startDate), Date.parse(endDate)]
-      }
+        [sequelize.Op.between]: [Date.parse(startDate), Date.parse(endDate)],
+      },
     },
   });
 
-  const result = retrieveHighestPaidProfession(jobs)
+  const result = retrieveHighestPaidProfession(jobs);
 
   return {
-    profession: result
+    profession: result,
   };
 };
 
 const getTopClients = async (startDate, endDate, limit) => {
   const jobs = await Job.findAll({
-    include: [{
-      model: Contract,
-      required: true,
-      include: [{
-        model: Profile,
-        as: 'Client',
-      }]
-    }],
+    include: [
+      {
+        model: Contract,
+        required: true,
+        include: [
+          {
+            model: Profile,
+            as: 'Client',
+          },
+        ],
+      },
+    ],
     where: {
       paid: {
-        [require('sequelize').Op.eq]: true
+        [require('sequelize').Op.eq]: true,
       },
       createdAt: {
-        [sequelize.Op.between]: [Date.parse(startDate), Date.parse(endDate)]
-      }
+        [sequelize.Op.between]: [Date.parse(startDate), Date.parse(endDate)],
+      },
     },
   });
 
-  const result = retrieveHighestPayingClient(jobs, limit)
+  const result = retrieveHighestPayingClient(jobs, limit);
 
   return result;
 };
 
 module.exports = {
   getBestProfession,
-  getTopClients
-}
+  getTopClients,
+};
