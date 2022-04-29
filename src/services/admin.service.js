@@ -23,7 +23,7 @@ const retrieveHighestPayingClient = (jobs, limit) => {
 
   let counter = 0;
   while (counter < limit) {
-    counter++;
+    counter += 1;
     const max = Object.keys(jobsHash).reduce((a, v) => Math.max(a, jobsHash[v]), -Infinity);
     const result = Object.keys(jobsHash).filter((v) => jobsHash[v] === max);
     sortedClients.push({ [result[0]]: jobsHash[result[0]] });

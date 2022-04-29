@@ -1,6 +1,5 @@
-const { Profile, Job } = require('../model');
+const { Profile } = require('../model');
 
-const { getAllContracts, getContractByPk } = require('./contracts.service');
 const { getAllJobs } = require('./jobs.service');
 
 const { sequelize } = require('../model');
@@ -24,9 +23,9 @@ const depositMoney = async (clientId, depositData) => {
     return { error: 'Transfer amount can not be greater than 25% of all jobs to pay' };
   }
 
-  try {
-    const t = await sequelize.transaction();
+  const t = await sequelize.transaction();
 
+  try {
     client.increment('balance', { by: amount }, { transaction: t });
 
     await t.commit();
