@@ -1,6 +1,4 @@
-const { Profile, Job } = require('../model')
-
-const ApiError = require('../utils/ApiError')
+const { Profile, Job, Contract } = require('../model')
 
 const { getAllContracts, getContractByPk } = require('../services/contracts.service')
 
@@ -8,13 +6,13 @@ const { sequelize } = require('../model');
 
 const getAllUnpaidJobs = async (profileId) => {
   const contracts = await getAllContracts(profileId)
-  contractsIds = contracts.map(contract => contract.id)
+  const contractsIds = contracts.map(contract => contract.id)
   const jobs = await Job.findAll({
     where: {
       paid: {
         [require('sequelize').Op.not]: true
       },
-      contractId: {
+      ContractId: {
         [require('sequelize').Op.in]: contractsIds
       }
     }
@@ -22,17 +20,35 @@ const getAllUnpaidJobs = async (profileId) => {
   return jobs;
 };
 
-const payJob = async (jobId, paymentData) => {
-  const job = await Job.findOne({
+const getAllJobs = async (profileId) => {
+  const contracts = await getAllContracts(profileId)
+  const contractsIds = contracts.map(contract => contract.id)
+  const jobs = await Job.findAll({
     where: {
-      id: jobId
+      paid: {
+        [require('sequelize').Op.eq]: true
+      },
+      ContractId: {
+        [require('sequelize').Op.in]: contractsIds
+      }
     }
-  })
+  });
+  return jobs;
+};
+
+const payJob = async (jobId, profileId) => {
+  const job = await Job.findByPk(jobId)
+
   const contract = await getContractByPk(job.ContractId)
+
+  if (profileId !== contract.ClientId) {
+    return { error: 'You can only pay your own jobs' }
+  }
+
   const client = await Profile.findByPk(contract.ClientId)
   const contractor = await Profile.findByPk(contract.ContractorId)
 
-  if (client.balance < paymentData.amount) {
+  if (client.balance < job.price) {
     return { error: 'Insufficient funds for transfer' }
   }
 
@@ -40,8 +56,8 @@ const payJob = async (jobId, paymentData) => {
 
     const t = await sequelize.transaction();
 
-    client.decrement('balance', { by: paymentData.amount }, { transaction: t })
-    contractor.increment('balance', { by: paymentData.amount }, { transaction: t })
+    client.decrement('balance', { by: job.price }, { transaction: t })
+    contractor.increment('balance', { by: job.price }, { transaction: t })
 
     await t.commit();
 
@@ -51,6 +67,8 @@ const payJob = async (jobId, paymentData) => {
   }
 
   return {
+    job: job,
+    contract: contract,
     client: client,
     contractor: contractor
   };
@@ -58,5 +76,6 @@ const payJob = async (jobId, paymentData) => {
 
 module.exports = {
   getAllUnpaidJobs,
+  getAllJobs,
   payJob
 }

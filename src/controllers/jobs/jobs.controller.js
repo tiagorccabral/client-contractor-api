@@ -9,10 +9,10 @@ const getUnpaidJobs = catchAsync(async (req, res) => {
 });
 
 const payJob = catchAsync(async (req, res) => {
-  const reqBody = req.body;
   const jobId = req.params.job_id
+  const profileId = req.profile.id
 
-  const result = await jobsService.payJob(jobId, reqBody);
+  const result = await jobsService.payJob(jobId, profileId);
 
   if (result.error) {
     res.status(httpStatus.BAD_REQUEST).send(result);
