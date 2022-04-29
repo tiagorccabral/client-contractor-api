@@ -12,6 +12,19 @@ const getBestProfession = catchAsync(async (req, res) => {
   res.send(data);
 });
 
+const getTopClients = catchAsync(async (req, res) => {
+
+  const query = req.query;
+
+  const startDate = query.start;
+  const endDate = query.end;
+  const limit = query.limit;
+
+  const data = await adminService.getTopClients(startDate, endDate, limit);
+  res.send(data);
+});
+
 module.exports = {
-  getBestProfession
+  getBestProfession,
+  getTopClients
 };
