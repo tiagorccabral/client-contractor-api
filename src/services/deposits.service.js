@@ -33,6 +33,8 @@ const depositMoney = async (clientId, depositData) => {
     await t.rollback();
   }
 
+  await client.reload();
+
   return {
     client,
   };
