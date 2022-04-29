@@ -12,6 +12,9 @@
 
 1. Then run `npm start` which should start both the server and the React client.
 
+
+1. To run the tests use `npm run test`
+
 ## Additional content
 
 ### Requirements
@@ -27,6 +30,10 @@ Node version used: 16.15.0
 ### Styling
 
 - EsLint and Prettier
+
+### Testing
+
+- Added a few test cases using Jest and Supertest
 
 ## OBS
 
