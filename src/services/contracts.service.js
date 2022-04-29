@@ -17,8 +17,20 @@ const getAllActiveContracts = async (profileId) => {
   return contracts;
 };
 
-const getProfileContract = async (contractId, profileId) => {
+const getAllContracts = async (profileId) => {
   const contracts = await Contract.findAll({
+    where: {
+      [sequelize.Op.or]: [
+        { ContractorId: profileId },
+        { ClientId: profileId }
+      ]
+    }
+  });
+  return contracts;
+};
+
+const getProfileContract = async (contractId, profileId) => {
+  const contracts = await Contract.findOne({
     where: {
       id: contractId,
       [sequelize.Op.or]: [
@@ -30,7 +42,18 @@ const getProfileContract = async (contractId, profileId) => {
   return contracts;
 };
 
+const getContractByPk = async (contractId) => {
+  const contracts = await Contract.findOne({
+    where: {
+      id: contractId
+    }
+  });
+  return contracts;
+};
+
 module.exports = {
   getAllActiveContracts,
-  getProfileContract
+  getAllContracts,
+  getProfileContract,
+  getContractByPk
 }
