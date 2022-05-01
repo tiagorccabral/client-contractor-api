@@ -37,4 +37,6 @@ Node version used: 16.15.0
 
 ## OBS
 
-There's a JSON file that can be imported into Postman to test all the requests
+- Use profile_id 1 as a admin for the admin endpoints (other users are not "admin")
+
+- There's a JSON file that can be imported into Postman to test all the requests
